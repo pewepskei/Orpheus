@@ -1,0 +1,57 @@
+.join-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100dvh;
+  background: linear-gradient(145deg, #f0ece2, #e0d9c9);
+  padding: 1rem;
+}
+
+.join-card {
+  background: white;
+  border: 2px solid #c19e3f;
+  border-radius: 12px;
+  padding: 2rem;
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
+  font-family: 'Cormorant Garamond', serif;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.08);
+
+  h2 {
+    margin-bottom: 1.5rem;
+    font-size: 2rem;
+    color: #4e3b1f;
+  }
+
+  .join-input {
+    width: 100%;
+    padding: 0.75rem;
+    font-size: 1.1rem;
+    margin-bottom: 1.5rem;
+    border: 1px solid #c9b178;
+    border-radius: 8px;
+    font-family: inherit;
+  }
+
+  button {
+    padding: 0.75rem 2rem;
+    font-size: 1rem;
+    border: none;
+    border-radius: 8px;
+    background: #c19e3f;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s ease-in-out;
+
+    &:hover {
+    }
+
+    &:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+  }
+}
+

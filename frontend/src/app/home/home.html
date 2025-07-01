@@ -1,0 +1,24 @@
+<div class="home-container">
+  <div class="background-overlay"></div>
+
+  <div class="hero-card">
+    <div class="logo">
+      <svg class="lyre-icon" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M20 12C16 4 6 4 6 16C6 36 24 40 32 52C40 40 58 36 58 16C58 4 48 4 44 12"
+        stroke="#c19e3f" stroke-width="3" fill="none"/>
+        <line x1="20" y1="12" x2="20" y2="40" stroke="#c19e3f" stroke-width="2"/>
+        <line x1="28" y1="12" x2="28" y2="44" stroke="#c19e3f" stroke-width="2"/>
+        <line x1="36" y1="12" x2="36" y2="44" stroke="#c19e3f" stroke-width="2"/>
+        <line x1="44" y1="12" x2="44" y2="40" stroke="#c19e3f" stroke-width="2"/>
+      </svg>
+    </div>
+    <h1><span class="orpheus">Orpheus</span></h1>
+    <p>Join a room or create your own and sing loud.</p>
+
+    <div class="actions">
+      <button mat-raised-button color="primary" (click)="onCreateRoom()">Create Room</button>
+      <button mat-stroked-button color="accent" routerLink="/join">Join Room</button>
+    </div>
+  </div>
+</div>
+

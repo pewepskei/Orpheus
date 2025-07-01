@@ -1,0 +1,17 @@
+<div class="join-container">
+  <div class="join-card">
+    <h2>Join a Room</h2>
+
+    <input
+      [formControl]="code"
+      placeholder="Access Code"
+      class="join-input"
+      (keyup.enter)="enterRoom()"
+    />
+
+    <button [disabled]="code.invalid" (click)="enterRoom()">
+      Enter Room
+    </button>
+  </div>
+</div>
+

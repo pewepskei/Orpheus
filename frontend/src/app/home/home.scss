@@ -1,0 +1,124 @@
+// 🎨 Theme Variables
+$greek-marble-bg: linear-gradient(145deg, #f0ece2, #e0d9c9); // light marble
+$ancient-gold: #c19e3f;
+$dark-bronze: #4e3b1f;
+$deep-navy: #1d2b36;
+$highlight-border: #a1874f;
+$text-color: #2e2e2e;
+$header-font: 'Cormorant Garamond', serif;
+
+.home-container {
+  height: 100dvh;
+  background: $greek-marble-bg;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem;
+  position: relative;
+  overflow: hidden;
+
+  .logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 3rem;
+    gap: 0.5rem;
+    scale: 5;
+
+    .lyre-icon {
+      width: 40px;
+      height: 40px;
+      stroke: $ancient-gold;
+    }
+
+    .logo-text {
+      font-family: $header-font;
+      font-size: 2rem;
+      font-weight: 700;
+      color: $dark-bronze;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+  }
+
+  .hero-card {
+    background: rgba(255, 255, 255, 0.85);
+    border: 2px solid $highlight-border;
+    border-radius: 16px;
+    padding: 2rem;
+    max-width: 700px;
+    width: 100%;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    font-family: $header-font;
+    color: $text-color;
+    animation: fadeInUp 1s ease;
+    padding-top: 90px;
+
+    h1 {
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      margin-bottom: 1rem;
+      color: $dark-bronze;
+      text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.08);
+
+      .orpheus {
+        color: $ancient-gold;
+        font-style: italic;
+      }
+    }
+
+    p {
+      font-size: clamp(1rem, 2vw, 1.25rem);
+      margin-bottom: 2rem;
+    }
+
+    .actions {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      flex-direction: column;
+
+      button {
+        font-size: 1rem;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-family: $header-font;
+        font-weight: bold;
+        letter-spacing: 0.5px;
+        cursor: pointer;
+        border: 2px solid $dark-bronze;
+        background-color: $ancient-gold;
+        color: white;
+        transition: all 0.3s ease;
+
+        &:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        &.mat-stroked-button {
+          background: none;
+          color: $dark-bronze;
+          border-color: $dark-bronze;
+
+          &:hover {
+            background-color: rgba(65, 44, 20, 0.1);
+          }
+        }
+      }
+    }
+  }
+}
+
+// ✨ Fade-in animation
+@keyframes fadeInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
