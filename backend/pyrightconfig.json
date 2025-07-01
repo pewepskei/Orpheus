@@ -1,0 +1,10 @@
+{
+  "typeCheckingMode": "basic",
+  "exclude": [
+    "migrations"
+  ],
+  "pythonVersion": "3.13",
+  "reportMissingTypeStubs": true,
+  "useLibraryCodeForTypes": true
+}
+
