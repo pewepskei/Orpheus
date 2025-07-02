@@ -1,6 +1,12 @@
 <div class="dashboard-container">
   <div class="header">
-    <div>Orpheus</div>
+    <div>
+      <h1>
+        <a [routerLink]="['/']" class="orpheus" style="cursor: pointer;">
+          Orpheus
+        </a>
+      </h1>
+    </div>
     <div>
       <div class="room-info">
         <h2>Room Code: <span>{{ roomCode }}</span></h2>

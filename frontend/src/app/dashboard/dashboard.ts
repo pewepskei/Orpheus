@@ -6,11 +6,12 @@ import { HlsPlayerComponent } from '../components/hls-player.component';
 import { QRDialogComponent } from './qr-dialog.component';
 import { MatIconModule } from '@angular/material/icon';
 import { RoomService } from '../services/room.service';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, MatDialogModule, HlsPlayerComponent, MatIconModule],
+  imports: [CommonModule, MatDialogModule, HlsPlayerComponent, MatIconModule, RouterModule],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss'
 })
@@ -44,7 +45,7 @@ export class Dashboard implements OnInit {
   }
 
   openQRDialog(): void {
-    const url = `${window.location.origin}/room/${this.roomCode}`;
+    const url = `${window.location.origin}/room/${this.roomCode}/remote`;
     this.dialog.open(QRDialogComponent, {
       data: { url }
     });
