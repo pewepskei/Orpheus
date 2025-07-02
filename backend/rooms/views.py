@@ -1,4 +1,5 @@
 from drf_yasg.utils import swagger_auto_schema
+from django.shortcuts import get_object_or_404
 
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
@@ -14,13 +15,14 @@ from .serializers import (
     SongMetadataSerializer, SongQueueSerializer, NowPlayingSerializer
 )
 
+
 class RoomViewSet(viewsets.ModelViewSet):
     queryset = Room.objects.all()
     serializer_class = RoomSerializer
 
     def get_permissions(self):
-        if self.action == 'create':
-            return [AllowAny()]  # Allow guest room creation
+        if self.action in ['create', 'get_room']:
+            return [AllowAny()]
         return [IsAuthenticated()]
 
     def create(self, request, *args, **kwargs):
@@ -42,13 +44,13 @@ class RoomViewSet(viewsets.ModelViewSet):
         return super().create(request, *args, **kwargs)
 
     def perform_create(self, serializer):
-        hls_url = f"https://your-hls-host.com/streams/{uuid.uuid4()}.m3u8"
+        # hls_url = f"https://your-hls-host.com/streams/{uuid.uuid4()}.m3u8"
+        hls_url = "https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8"
         if self.request.user.is_authenticated:
             serializer.save(host=self.request.user)
         else:
             guest_id = self.request.data.get('guest_id')
             serializer.save(guest_id=guest_id, hls_stream_url=hls_url)
-
 
     @action(
         detail=True,
@@ -65,6 +67,23 @@ class RoomViewSet(viewsets.ModelViewSet):
         user = request.user
         member, _ = RoomMember.objects.get_or_create(user=user, room=room)
         serializer = RoomMemberSerializer(member)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(
+        detail=True,
+        methods=['GET'],
+        url_path='get-room',
+        url_name='get-room',
+    )
+    @swagger_auto_schema(
+        operation_description="Get room details by room code",
+        responses={200: RoomSerializer()}
+    )
+    def get_room(self, request, pk=None):
+        # treat `pk` as `code` instead of the primary key
+        code = pk
+        room = get_object_or_404(Room, code=code)
+        serializer = RoomSerializer(room)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 class RoomMemberViewSet(viewsets.ReadOnlyModelViewSet):
