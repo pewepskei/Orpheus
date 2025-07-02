@@ -1,0 +1,21 @@
+<div class="remote-container">
+  <h1 class="title">🎶 Remote</h1>
+
+  <button class="reserve-btn" (click)="openReserveDialog()">
+    + Reserve Song
+  </button>
+
+  <div class="queue-section">
+    <h2>🎤 On Queue</h2>
+    <div *ngIf="queuedSongs.length === 0" class="empty">
+      No songs queued yet.
+    </div>
+
+    <ul class="queue-list" *ngIf="queuedSongs.length > 0">
+      <li *ngFor="let song of queuedSongs">
+        {{ song.title }} — <span class="singer">{{ song.singer }}</span>
+      </li>
+    </ul>
+  </div>
+</div>
+
