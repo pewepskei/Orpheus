@@ -21,23 +21,11 @@ $header-font: 'Cormorant Garamond', serif;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 3rem;
     gap: 0.5rem;
-    scale: 5;
-
-    .lyre-icon {
-      width: 40px;
-      height: 40px;
-      stroke: $ancient-gold;
-    }
-
-    .logo-text {
-      font-family: $header-font;
-      font-size: 2rem;
-      font-weight: 700;
-      color: $dark-bronze;
-      text-transform: uppercase;
-      letter-spacing: 1px;
+    height: 70%;
+    img {
+      height: 150px;
+      width: 100%;
     }
   }
 
@@ -53,10 +41,10 @@ $header-font: 'Cormorant Garamond', serif;
     font-family: $header-font;
     color: $text-color;
     animation: fadeInUp 1s ease;
-    padding-top: 90px;
 
     h1 {
       font-size: clamp(2rem, 5vw, 3.5rem);
+      margin-top: 0px;
       margin-bottom: 1rem;
       color: $dark-bronze;
       text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.08);

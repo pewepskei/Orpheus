@@ -1,19 +1,52 @@
-import { Component } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { Component, inject, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { CommonModule } from '@angular/common';
+import { HlsPlayerComponent } from '../components/hls-player.component';
+import { QRDialogComponent } from './qr-dialog.component';
+import { MatIconModule } from '@angular/material/icon';
+import { RoomService } from '../services/room.service';
 
 @Component({
   selector: 'app-dashboard',
-  imports: [],
+  standalone: true,
+  imports: [CommonModule, MatDialogModule, HlsPlayerComponent, MatIconModule],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss'
 })
-export class Dashboard {
-  roomCode: string | null = null;
+export class Dashboard implements OnInit {
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  private dialog = inject(MatDialog);
+  private roomService = inject(RoomService);
 
-  constructor(private route: ActivatedRoute) {
-    this.route.paramMap.subscribe(params => {
-      this.roomCode = params.get('code');
-      console.log('Room Code:', this.roomCode);
+  roomCode = '';
+  hlsUrl = '';
+
+  ngOnInit(): void {
+    const nav = this.router.getCurrentNavigation();
+    const room = nav?.extras.state?.['room'];
+
+    this.roomCode = this.route.snapshot.paramMap.get('code') || '';
+
+    if (this.roomCode) {
+      this.roomService.getRoomByCode(this.roomCode).subscribe({
+        next: (roomData) => {
+          console.log('Fetched room:', roomData);
+          this.hlsUrl = roomData.hls_stream_url;
+          console.log("The url is", this.hlsUrl);
+        },
+        error: (err) => {
+          console.error('Failed to fetch room:', err);
+        }
+      });
+    }
+  }
+
+  openQRDialog(): void {
+    const url = `${window.location.origin}/room/${this.roomCode}`;
+    this.dialog.open(QRDialogComponent, {
+      data: { url }
     });
   }
 }

@@ -1,0 +1,84 @@
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600&family=Cormorant+Garamond:ital,wght@0,400;1,600&display=swap');
+
+.dashboard-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  padding: 1rem;
+  background: linear-gradient(to bottom right, #fdfcf7, #f4eee2);
+
+  font-family: 'Cormorant Garamond', serif;
+  color: #2c1e13;
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid #d3c7a1;
+    padding-bottom: 0.5rem;
+
+    .room-info {
+      display: flex;
+      flex-direction: row;
+    }
+
+    h2 {
+      font-family: 'Cinzel', serif;
+      font-size: 1.5rem;
+
+      span {
+        background-color: #e7ddc6;
+        padding: 0.25rem 0.5rem;
+        border-radius: 6px;
+        color: #5c3e1d;
+      }
+    }
+
+    mat-icon {
+      font-size: 28px;
+      color: #5c3e1d;
+    }
+  }
+
+  .content {
+    display: flex;
+    flex: 1;
+    gap: 1rem;
+
+    .video {
+      flex: 2;
+      border: 3px solid #d6c79a;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .queue-box {
+      flex: 1;
+      background: #fffef9;
+      border: 2px solid #c6b88a;
+      border-radius: 12px;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: start;
+      align-items: start;
+      font-family: 'Cormorant Garamond', serif;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+
+      h3 {
+        font-family: 'Cinzel', serif;
+        font-size: 1.2rem;
+        margin-bottom: 0.5rem;
+        color: #3e2f1c;
+      }
+
+      p {
+        color: #6a5a3f;
+        font-style: italic;
+      }
+    }
+  }
+}
+

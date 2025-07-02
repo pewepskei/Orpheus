@@ -1,1 +1,24 @@
-<p>dashboard works!</p>
+<div class="dashboard-container">
+  <div class="header">
+    <div>Orpheus</div>
+    <div>
+      <div class="room-info">
+        <h2>Room Code: <span>{{ roomCode }}</span></h2>
+        <button mat-icon-button (click)="openQRDialog()" aria-label="Show QR">
+          <mat-icon>qr_code</mat-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="video">
+      <app-hls-player [src]="hlsUrl"></app-hls-player>
+    </div>
+    <div class="queue-box">
+      <h3>🎤 On Queue</h3>
+      <p>(Coming soon)</p>
+    </div>
+  </div>
+</div>
+

@@ -9,11 +9,11 @@ export const routeFadeAnimation = trigger('routeAnimations', [
 
     group([
       query(':leave', [
-        animate('200ms ease-out', style({ opacity: 0 }))
+        animate('500ms ease-out', style({ opacity: 0 }))
       ], { optional: true }),
       query(':enter', [
         style({ opacity: 0 }),
-        animate('300ms ease-in', style({ opacity: 1 }))
+        animate('500ms ease-in', style({ opacity: 1 }))
       ], { optional: true }),
     ])
   ])
