@@ -1,3 +1,11 @@
 body {
   margin: 0px;
 }
+
+.mat-mdc-dialog-surface {
+  background-color: transparent !important;
+  padding: 0 !important;
+  border-radius: 0 !important; /* Let your inner component handle this */
+  box-shadow: none !important;
+}
+
