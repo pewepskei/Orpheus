@@ -1,6 +1,8 @@
 from django.db import models
 from django.conf import settings
 import string, random
+from django.contrib.auth import get_user_model
+User = get_user_model()
 
 def generate_room_code():
     return ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
@@ -36,11 +38,18 @@ class SongMetadata(models.Model):
         return f"{self.title} - {self.artist}"
 
 class SongQueue(models.Model):
-    room = models.ForeignKey(Room, on_delete=models.CASCADE, related_name='queue')
-    song = models.ForeignKey(SongMetadata, on_delete=models.CASCADE)
-    position = models.PositiveIntegerField()
-    added_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
-    is_played = models.BooleanField(default=False)
+    title = models.CharField(max_length=255)
+    video_id = models.CharField(max_length=100)
+    thumbnail_url = models.URLField(blank=True, null=True)
+    formatted_duration = models.CharField(max_length=20)
+    singer = models.CharField(max_length=100)
+    
+    room = models.ForeignKey(Room, on_delete=models.CASCADE)
+    added_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL)
+    guest_id = models.UUIDField(null=True, blank=True)
+
+    position = models.PositiveIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ['position']

@@ -1,12 +1,18 @@
 from drf_yasg.utils import swagger_auto_schema
 from django.shortcuts import get_object_or_404
+from django.db import models
 
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
-import uuid
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
+from .models import SongQueue
+from .serializers import SongQueueSerializer
+
+from uuid import UUID
 
 from .models import Room, RoomMember, SongMetadata, SongQueue, NowPlaying
 
@@ -24,13 +30,14 @@ class RoomViewSet(viewsets.ModelViewSet):
         if self.action in ['create', 'get_room']:
             return [AllowAny()]
         return [IsAuthenticated()]
+        return [AllowAny()]
 
     def create(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
             guest_id = request.data.get('guest_id')
             if guest_id:
                 try:
-                    uuid.UUID(str(guest_id))
+                    UUID(str(guest_id))
                 except ValueError:
                     return Response(
                         {"error": "Guest ID provided is not valid."},
@@ -45,7 +52,7 @@ class RoomViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         # hls_url = f"https://your-hls-host.com/streams/{uuid.uuid4()}.m3u8"
-        hls_url = "https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8"
+        hls_url = "http://192.168.1.109:5000/video/index.m3u8"
         if self.request.user.is_authenticated:
             serializer.save(host=self.request.user)
         else:
@@ -100,16 +107,41 @@ class SongMetadataViewSet(viewsets.ModelViewSet):
 
 class SongQueueViewSet(viewsets.ModelViewSet):
     serializer_class = SongQueueSerializer
-    permission_classes = [permissions.IsAuthenticated]
+
+    def get_permissions(self):
+        if self.request.method in ['GET', 'POST']:
+            return [permissions.AllowAny()]
+        return [permissions.IsAuthenticated()]
 
     def get_queryset(self):
-        room_id = self.request.query_params.get('room')
-        if room_id:
-            return SongQueue.objects.filter(room_id=room_id).order_by('position')
+        room_code = self.request.query_params.get('room_code')
+        if room_code:
+            return SongQueue.objects.filter(room__code=room_code).order_by('position')
         return SongQueue.objects.none()
 
     def perform_create(self, serializer):
-        serializer.save(added_by=self.request.user)
+        guest_id = self.request.data.get("guest_id")
+        user = self.request.user if self.request.user.is_authenticated else None
+
+        room_code = self.request.data.get("room_code")
+        if not room_code:
+            raise serializers.ValidationError({"room_code": "Missing room_code."})
+
+        try:
+            room = Room.objects.get(code=room_code)
+        except Room.DoesNotExist:
+            raise serializers.ValidationError({"room_code": "Room does not exist."})
+
+        last_position = SongQueue.objects.filter(room=room).aggregate(
+            max_pos=models.Max('position')
+        )['max_pos'] or 0
+
+        serializer.save(
+            added_by=user,
+            guest_id=guest_id,
+            position=last_position + 1
+        )
+        broadcast_queue(room_code)
 
 class NowPlayingViewSet(viewsets.ModelViewSet):
     serializer_class = NowPlayingSerializer
@@ -124,3 +156,17 @@ class NowPlayingViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save()
 
+
+def broadcast_queue(room_code: str):
+    print(f"Phil the room_code is {room_code}")
+    songs = SongQueue.objects.filter(room__code=room_code).order_by('created_at')
+    serialized = SongQueueSerializer(songs, many=True).data
+
+    channel_layer = get_channel_layer()
+    async_to_sync(channel_layer.group_send)(
+        f'queue_{room_code}',
+        {
+            'type': 'send_queue_update',
+            'data': serialized
+        }
+    )
