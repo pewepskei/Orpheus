@@ -1,5 +1,11 @@
 <div class="remote-container">
-  <h1 class="title">🎶 Remote</h1>
+  <div class="remote-header">
+    <h1 class="title">🎶 Remote</h1>
+    <div class="top-bar">
+      <span class="name">{{ deviceName }}</span>
+      <button class="edit-btn" (click)="editName()" aria-label="Edit name">✏️</button>
+    </div>
+  </div>
 
   <button class="reserve-btn" (click)="openReserveDialog()">
     + Reserve Song
@@ -12,8 +18,12 @@
     </div>
 
     <ul class="queue-list" *ngIf="queuedSongs.length > 0">
-      <li *ngFor="let song of queuedSongs">
-        {{ song.title }} — <span class="singer">{{ song.singer }}</span>
+      <li *ngFor="let song of queuedSongs" class="queued-item">
+        <img [src]="song.thumbnail_url" alt="thumb" class="thumb" />
+        <div class="info">
+          <div class="title">{{ song.title }}</div>
+          <div class="singer">🎤 {{ song.singer }}</div>
+        </div>
       </li>
     </ul>
   </div>

@@ -7,6 +7,9 @@ import { QRDialogComponent } from './qr-dialog.component';
 import { MatIconModule } from '@angular/material/icon';
 import { RoomService } from '../services/room.service';
 import { RouterModule } from '@angular/router';
+import { QueueSocketService } from '../services/queue-socket.service';
+import { QueueService, QueuedSong } from '../services/queue.service';
+import { OnDestroy } from '@angular/core';
 
 @Component({
   selector: 'app-dashboard',
@@ -15,11 +18,14 @@ import { RouterModule } from '@angular/router';
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss'
 })
-export class Dashboard implements OnInit {
+export class Dashboard implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private dialog = inject(MatDialog);
+  private queueService = inject(QueueService);
   private roomService = inject(RoomService);
+  queuedSongs: QueuedSong[] = [];
+  private queueSocket = inject(QueueSocketService);
 
   roomCode = '';
   hlsUrl = '';
@@ -35,19 +41,39 @@ export class Dashboard implements OnInit {
         next: (roomData) => {
           console.log('Fetched room:', roomData);
           this.hlsUrl = roomData.hls_stream_url;
-          console.log("The url is", this.hlsUrl);
+          this.loadQueue(); // Initial fetch
         },
         error: (err) => {
           console.error('Failed to fetch room:', err);
         }
       });
+
+      this.queueSocket.connect(this.roomCode).subscribe({
+        next: (songs) => {
+          this.queuedSongs = songs;
+        },
+        error: (err) => {
+          console.error('WebSocket error:', err);
+        }
+      });
     }
+  }
+
+  ngOnDestroy(): void {
+    console.log("Destoy detected");
+    this.queueSocket.disconnect();
   }
 
   openQRDialog(): void {
     const url = `${window.location.origin}/room/${this.roomCode}/remote`;
     this.dialog.open(QRDialogComponent, {
       data: { url }
+    });
+  }
+
+  loadQueue() {
+    this.queueService.getQueue(this.roomCode).subscribe(songs => {
+      this.queuedSongs = songs;
     });
   }
 }

@@ -5,6 +5,8 @@ import { CommonModule } from '@angular/common';
 import { YouTubeService, YouTubeVideo } from '../services/youtube.service';
 import { MatIconModule } from '@angular/material/icon';
 import { debounceTime, Subject } from 'rxjs';
+import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { Inject } from '@angular/core';
 
 @Component({
   selector: 'app-reserve-dialog',
@@ -35,8 +37,8 @@ import { debounceTime, Subject } from 'rxjs';
       </div>
 
       <div class="results">
-        <div class="result" *ngFor="let video of results">
-          <img [src]="video.thumbnail?.[0]?.url || ''" class="thumb" alt="thumb" />
+        <div class="result" *ngFor="let video of results" (click)="addToQueue(video)">
+          <img [src]="video.thumbnail[0].url || ''" class="thumb" alt="thumb" />
           <div class="info">
             <div class="title">{{ video.title }}</div>
             <div class="duration">{{ video.formatted_duration }}</div>
@@ -140,12 +142,12 @@ import { debounceTime, Subject } from 'rxjs';
     }
     .suggestions-list {
       position: absolute;
-      top: 15%;
+      top: 18%;
       left: 0;
       right: 0;
       background: #2a2a2a;
       border-radius: 6px;
-      max-height: 150px;
+      max-height: 350px;
       overflow-y: auto;
       z-index: 1000;
       list-style: none;
@@ -173,11 +175,20 @@ export class ReserveDialog {
   private youtubeService = inject(YouTubeService);
   public dialogRef = inject(MatDialogRef<ReserveDialog>);
 
-  constructor() {
-    this.searchSubject.pipe(debounceTime(300)).subscribe((term) => {
+  constructor(
+    @Inject(MAT_DIALOG_DATA) public data:{ onAddSong: (video: YouTubeVideo) => void }
+  ) {
+    this.searchSubject.pipe(debounceTime(200)).subscribe((term) => {
+      if (!term.trim()) {
+        this.suggestions = [];
+        return;
+      }
+
+      term = term + " karaoke";
+
       this.youtubeService.search(term).subscribe({
         next: (videos) => {
-          this.suggestions = videos.map(v => v.title); // basic suggestion based on titles
+          this.suggestions = videos.slice(0, 5).map(v => v.title); // Top 5 only
         },
         error: (err) => console.error(err),
       });
@@ -199,5 +210,10 @@ export class ReserveDialog {
       next: (videos) => (this.results = videos),
       error: (err) => console.error('Search error:', err),
     });
+  }
+
+  addToQueue(video: YouTubeVideo) {
+    this.data?.onAddSong?.(video);
+    this.dialogRef.close();
   }
 }

@@ -19,11 +19,17 @@
 
   <div class="content">
     <div class="video">
-      <app-hls-player [src]="hlsUrl"></app-hls-player>
+      <app-hls-player *ngIf="hlsUrl" [src]="hlsUrl"></app-hls-player>
     </div>
     <div class="queue-box">
       <h3>🎤 On Queue</h3>
-      <p>(Coming soon)</p>
+      <div *ngFor="let song of queuedSongs" class="queued-song">
+        <img [src]="song.thumbnail_url" width="150" height="100" alt="thumb" />
+        <div>
+          <strong>{{ song.title }}</strong><br />
+          <small>By {{ song.singer }}</small>
+        </div>
+      </div>
     </div>
   </div>
 </div>
