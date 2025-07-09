@@ -35,6 +35,8 @@ class SongQueueSerializer(serializers.ModelSerializer):
             'room_code',  # for lookup only
             'position',
             'created_at',
+            'url',         # 👈 add this
+            'hls_url',
         ]
         read_only_fields = ['id', 'position', 'created_at']
 
