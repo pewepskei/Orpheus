@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export interface QueuedSong {
   id?: number;
@@ -17,7 +18,7 @@ export interface QueuedSong {
 
 @Injectable({ providedIn: 'root' })
 export class QueueService {
-  private apiUrl = 'http://192.168.1.109:8000/api/queue/';
+  private apiUrl = `${environment.apiUrl}/queue/`;
 
   constructor(private http: HttpClient) {}
 
@@ -27,6 +28,10 @@ export class QueueService {
 
   getQueue(roomCode: string): Observable<QueuedSong[]> {
     return this.http.get<QueuedSong[]>(`${this.apiUrl}?room_code=${roomCode}`);
+  }
+
+  markAsPlayed(roomCode: string) {
+    return this.http.post(`${this.apiUrl}mark-played/`, { room_code: roomCode });
   }
 }
 

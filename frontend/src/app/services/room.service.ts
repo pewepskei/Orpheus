@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class RoomService {
-  private apiUrl = 'http://192.168.1.109:8000/api/rooms/';
+  private apiUrl = `${environment.apiUrl}/rooms/`;
 
   constructor(private http: HttpClient) {}
 
