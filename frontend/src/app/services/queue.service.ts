@@ -7,6 +7,8 @@ export interface QueuedSong {
   title: string;
   video_id: string;
   thumbnail_url: string;
+  url: string;
+  hls_url: string;
   formatted_duration: string;
   singer: string;
   room_code?: string;

@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { CommonModule } from '@angular/common';
@@ -9,7 +9,6 @@ import { RoomService } from '../services/room.service';
 import { RouterModule } from '@angular/router';
 import { QueueSocketService } from '../services/queue-socket.service';
 import { QueueService, QueuedSong } from '../services/queue.service';
-import { OnDestroy } from '@angular/core';
 
 @Component({
   selector: 'app-dashboard',
@@ -24,9 +23,9 @@ export class Dashboard implements OnInit, OnDestroy {
   private dialog = inject(MatDialog);
   private queueService = inject(QueueService);
   private roomService = inject(RoomService);
-  queuedSongs: QueuedSong[] = [];
   private queueSocket = inject(QueueSocketService);
 
+  queuedSongs: QueuedSong[] = [];
   roomCode = '';
   hlsUrl = '';
 
@@ -40,7 +39,7 @@ export class Dashboard implements OnInit, OnDestroy {
       this.roomService.getRoomByCode(this.roomCode).subscribe({
         next: (roomData) => {
           console.log('Fetched room:', roomData);
-          this.hlsUrl = roomData.hls_stream_url;
+          this.hlsUrl = roomData.hls_stream_url; // fallback / placeholder
           this.loadQueue(); // Initial fetch
         },
         error: (err) => {
@@ -50,7 +49,16 @@ export class Dashboard implements OnInit, OnDestroy {
 
       this.queueSocket.connect(this.roomCode).subscribe({
         next: (songs) => {
+          const currentFirst = this.queuedSongs[0]?.hls_url;
+          const newFirst = songs[0]?.hls_url;
+
           this.queuedSongs = songs;
+
+          // Only update HLS if the top of the queue has changed
+          if (newFirst && newFirst !== currentFirst) {
+            console.log('New top of queue detected. Updating player:', newFirst);
+            this.hlsUrl = newFirst;
+          }
         },
         error: (err) => {
           console.error('WebSocket error:', err);
@@ -60,7 +68,7 @@ export class Dashboard implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    console.log("Destoy detected");
+    console.log('Destroy detected');
     this.queueSocket.disconnect();
   }
 
@@ -71,10 +79,29 @@ export class Dashboard implements OnInit, OnDestroy {
     });
   }
 
-  loadQueue() {
+  loadQueue(): void {
     this.queueService.getQueue(this.roomCode).subscribe(songs => {
       this.queuedSongs = songs;
+
+      if (songs.length > 0) {
+        this.hlsUrl = songs[0].hls_url;
+      }
     });
+  }
+
+  onVideoEnded(): void {
+    console.log('Video finished. Shifting queue.');
+
+    // Optional: Notify backend
+    // this.queueService.markAsPlayed(this.roomCode).subscribe();
+
+    this.queuedSongs.shift();
+
+    if (this.queuedSongs.length > 0) {
+      this.hlsUrl = this.queuedSongs[0].hls_url;
+    } else {
+      this.hlsUrl = ''; // fallback / stop playback
+    }
   }
 }
 

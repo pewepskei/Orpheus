@@ -213,6 +213,7 @@ export class ReserveDialog {
   }
 
   addToQueue(video: YouTubeVideo) {
+    console.log("Passing video to queue", video);
     this.data?.onAddSong?.(video);
     this.dialogRef.close();
   }
