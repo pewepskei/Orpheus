@@ -16,6 +16,10 @@ from uuid import UUID
 
 from .models import Room, RoomMember, SongMetadata, SongQueue, NowPlaying
 
+from core.tasks import run_youtube_download_script
+
+from celery import current_app
+
 from .serializers import (
     RoomSerializer, RoomMemberSerializer,
     SongMetadataSerializer, SongQueueSerializer, NowPlayingSerializer
@@ -120,8 +124,11 @@ class SongQueueViewSet(viewsets.ModelViewSet):
         return SongQueue.objects.none()
 
     def perform_create(self, serializer):
+        print("Broker at runtime:", current_app.conf.broker_url)
         guest_id = self.request.data.get("guest_id")
         user = self.request.user if self.request.user.is_authenticated else None
+        video_url = self.request.data.get("url")
+        video_id = self.request.data.get("video_id")
 
         room_code = self.request.data.get("room_code")
         if not room_code:
@@ -136,11 +143,17 @@ class SongQueueViewSet(viewsets.ModelViewSet):
             max_pos=models.Max('position')
         )['max_pos'] or 0
 
-        serializer.save(
+        hls_url = f"http://192.168.1.109:5000/{video_id}/index.m3u8"
+
+        instance = serializer.save(
             added_by=user,
             guest_id=guest_id,
-            position=last_position + 1
+            position=last_position + 1,
+            url = video_url,
+            hls_url=hls_url,
         )
+        print(f"Phil instance is {instance.url}")
+        run_youtube_download_script.delay(video_url, str(instance.id), video_id)
         broadcast_queue(room_code)
 
 class NowPlayingViewSet(viewsets.ModelViewSet):
