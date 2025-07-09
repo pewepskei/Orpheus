@@ -2,13 +2,14 @@ import { Injectable } from '@angular/core';
 import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
 import { Observable } from 'rxjs';
 import { QueuedSong } from './queue.service';
+import { environment } from '../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class QueueSocketService {
   private socket$: WebSocketSubject<any> | null = null;
 
   connect(roomCode: string): Observable<QueuedSong[]> {
-    const url = `ws://192.168.1.109:8000/ws/queue/${roomCode}/`;
+    const url = `${environment.wbsUrl}/${roomCode}/`;
 
     this.socket$ = webSocket({
       url,

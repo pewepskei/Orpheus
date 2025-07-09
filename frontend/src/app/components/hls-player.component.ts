@@ -18,9 +18,10 @@ import Hls from 'hls.js';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <video #videoRef controls autoplay muted playsinline style="width: 100%; height: 100%; object-fit: cover;"></video>
+    <video #videoRef controls autoplay playsinline style="width: 100%; height: 100%; object-fit: cover;"></video>
   `,
 })
+    // <video #videoRef controls autoplay muted playsinline style="width: 100%; height: 100%; object-fit: cover;"></video>
 export class HlsPlayerComponent implements OnInit, OnDestroy, OnChanges {
   @Input() src: string = '';
   @Output() ended = new EventEmitter<void>();
@@ -91,7 +92,7 @@ export class HlsPlayerComponent implements OnInit, OnDestroy, OnChanges {
         this.hls!.loadSource(src);
 
         this.hls!.on(Hls.Events.MANIFEST_PARSED, () => {
-          video.muted = true;
+          video.muted = false;
           video.play().then(() => {
             console.log('[HLS] Playback started');
           }).catch(err => {

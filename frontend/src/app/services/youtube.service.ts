@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export interface YouTubeVideo {
   title: string;
@@ -14,7 +15,7 @@ export interface YouTubeVideo {
 
 @Injectable({ providedIn: 'root' })
 export class YouTubeService {
-  private apiUrl = 'http://192.168.1.109:8000/api/youtube/search/';
+  private apiUrl = `${environment.apiUrl}/youtube/search/`;
 
   constructor(private http: HttpClient) {}
 

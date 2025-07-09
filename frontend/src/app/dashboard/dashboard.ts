@@ -28,6 +28,13 @@ export class Dashboard implements OnInit, OnDestroy {
   queuedSongs: QueuedSong[] = [];
   roomCode = '';
   hlsUrl = '';
+  started = false;
+
+  startKaraoke() {
+    this.started = true;
+    // autoplay is now allowed — the next time hlsUrl changes, video will play with audio
+  }
+
 
   ngOnInit(): void {
     const nav = this.router.getCurrentNavigation();
@@ -90,18 +97,16 @@ export class Dashboard implements OnInit, OnDestroy {
   }
 
   onVideoEnded(): void {
-    console.log('Video finished. Shifting queue.');
+    console.log('Video ended, notifying backend');
 
-    // Optional: Notify backend
-    // this.queueService.markAsPlayed(this.roomCode).subscribe();
-
-    this.queuedSongs.shift();
-
-    if (this.queuedSongs.length > 0) {
-      this.hlsUrl = this.queuedSongs[0].hls_url;
-    } else {
-      this.hlsUrl = ''; // fallback / stop playback
-    }
+    this.queueService.markAsPlayed(this.roomCode).subscribe({
+      next: () => {
+        console.log('Backend acknowledged. Waiting for WebSocket update...');
+      },
+      error: err => {
+        console.error('Failed to notify backend:', err);
+      }
+    });
   }
 }
 

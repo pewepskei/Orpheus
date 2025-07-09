@@ -19,8 +19,11 @@
 
   <div class="content">
     <div class="video">
-      <app-hls-player *ngIf="hlsUrl" [src]="hlsUrl" (ended)="onVideoEnded()"></app-hls-player>
-
+      <div *ngIf="!started" (click)="startKaraoke()" class="start-overlay">
+      Tap to Start Karaoke 🎤
+      </div>
+      <!-- <app-hls-player *ngIf="hlsUrl" [src]="hlsUrl" (ended)="onVideoEnded()"></app-hls-player> -->
+      <app-hls-player *ngIf="started && hlsUrl" [src]="hlsUrl" (ended)="onVideoEnded()"></app-hls-player>
     </div>
     <div class="queue-box">
       <h3>🎤 On Queue</h3>
