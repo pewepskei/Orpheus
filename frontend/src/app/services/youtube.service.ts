@@ -7,6 +7,7 @@ export interface YouTubeVideo {
   videoId: string;
   thumbnail: Array<{ url: string; height: number; width: number }>;
   url: string;
+  hls_url: string;
   duration: number;
   formatted_duration: string;
 }

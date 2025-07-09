@@ -103,6 +103,8 @@ export class Remote {
       singer: this.deviceName,
       room_code: this.roomCode,
       guest_id: guestId,
+      url: video.url,
+      hls_url: video.hls_url,
     };
 
     this.queueService.addToQueue(song).subscribe(() => {
