@@ -1,6 +1,7 @@
 from drf_yasg.utils import swagger_auto_schema
 from django.shortcuts import get_object_or_404
 from django.db import models
+from django.conf import settings
 
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
@@ -56,7 +57,7 @@ class RoomViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         # hls_url = f"https://your-hls-host.com/streams/{uuid.uuid4()}.m3u8"
-        hls_url = "http://192.168.1.109:5000/video/index.m3u8"
+        hls_url = f"{settings.CDN_URL}/video/index.m3u8"
         if self.request.user.is_authenticated:
             serializer.save(host=self.request.user)
         else:
@@ -140,21 +141,40 @@ class SongQueueViewSet(viewsets.ModelViewSet):
             raise serializers.ValidationError({"room_code": "Room does not exist."})
 
         last_position = SongQueue.objects.filter(room=room).aggregate(
-            max_pos=models.Max('position')
-        )['max_pos'] or 0
+                max_pos=models.Max('position')
+                )['max_pos'] or 0
 
-        hls_url = f"http://192.168.1.109:5000/{video_id}/index.m3u8"
+        hls_url = f"{settings.CDN_URL}/{video_id}/index.m3u8"
 
         instance = serializer.save(
-            added_by=user,
-            guest_id=guest_id,
-            position=last_position + 1,
-            url = video_url,
-            hls_url=hls_url,
-        )
+                added_by=user,
+                guest_id=guest_id,
+                position=last_position + 1,
+                url = video_url,
+                hls_url=hls_url,
+                )
         print(f"Phil instance is {instance.url}")
         run_youtube_download_script.delay(video_url, str(instance.id), video_id)
         broadcast_queue(room_code)
+
+    @action(detail=False, methods=['POST'], url_path='mark-played')
+    def mark_played(self, request):
+        room_code = request.data.get('room_code')
+        if not room_code:
+            return Response({'error': 'Missing room_code'}, status=400)
+
+        try:
+            room = Room.objects.get(code=room_code)
+        except Room.DoesNotExist:
+            return Response({'error': 'Room does not exist'}, status=404)
+
+        top_song = SongQueue.objects.filter(room=room).order_by('position').first()
+        if top_song:
+            top_song.delete()
+            broadcast_queue(room_code)
+            return Response({'status': 'ok', 'message': 'Top song removed'})
+        else:
+            return Response({'status': 'empty', 'message': 'No songs in queue'}, status=200)
 
 class NowPlayingViewSet(viewsets.ModelViewSet):
     serializer_class = NowPlayingSerializer
