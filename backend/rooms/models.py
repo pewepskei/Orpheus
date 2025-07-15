@@ -38,6 +38,13 @@ class SongMetadata(models.Model):
         return f"{self.title} - {self.artist}"
 
 class SongQueue(models.Model):
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),       # Not started
+        ('composing', 'Composing'),   # In progress
+        ('ready', 'Ready'),           # Done, has hls_url
+        ('failed', 'Failed'),         # Optional
+    ]
+
     title = models.CharField(max_length=255)
     video_id = models.CharField(max_length=100)
     thumbnail_url = models.URLField(blank=True, null=True)
@@ -45,6 +52,8 @@ class SongQueue(models.Model):
     singer = models.CharField(max_length=100)
     url = models.URLField(blank=True, null=True)
     hls_url = models.URLField(blank=True, null=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    hls_url = models.TextField(blank=True, null=True)
     
     room = models.ForeignKey(Room, on_delete=models.CASCADE)
     added_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL)

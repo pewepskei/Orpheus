@@ -8,8 +8,6 @@ from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
-from channels.layers import get_channel_layer
-from asgiref.sync import async_to_sync
 from .models import SongQueue
 from .serializers import SongQueueSerializer
 
@@ -18,6 +16,7 @@ from uuid import UUID
 from .models import Room, RoomMember, SongMetadata, SongQueue, NowPlaying
 
 from core.tasks import run_youtube_download_script
+from core.utils import broadcast_queue
 
 from celery import current_app
 
@@ -152,6 +151,7 @@ class SongQueueViewSet(viewsets.ModelViewSet):
                 position=last_position + 1,
                 url = video_url,
                 hls_url=hls_url,
+                status='composing',
                 )
         print(f"Phil instance is {instance.url}")
         run_youtube_download_script.delay(video_url, str(instance.id), video_id)
@@ -188,18 +188,3 @@ class NowPlayingViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save()
-
-
-def broadcast_queue(room_code: str):
-    print(f"Phil the room_code is {room_code}")
-    songs = SongQueue.objects.filter(room__code=room_code).order_by('created_at')
-    serialized = SongQueueSerializer(songs, many=True).data
-
-    channel_layer = get_channel_layer()
-    async_to_sync(channel_layer.group_send)(
-        f'queue_{room_code}',
-        {
-            'type': 'send_queue_update',
-            'data': serialized
-        }
-    )

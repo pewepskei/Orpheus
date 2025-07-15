@@ -12,6 +12,8 @@ services:
       - "8000:8000"
     depends_on:
       - redis
+    networks:
+      - websocket_network
 
   celery:
     build:
@@ -24,12 +26,25 @@ services:
       - ./backend/.env
     depends_on:
       - redis
+    networks:
+      - websocket_network
+
+  assets:
+    build:
+      context: ./backend/assets
+    container_name: orpheus-assets
+    ports:
+      - "5000:5000"  # Expose on host
+    networks:
+      - websocket_network
 
   redis:
     image: redis:7
     container_name: orpheus-redis
     ports:
       - "6379:6379"
+    networks:
+      - websocket_network
 
   frontend:
     build:
@@ -42,3 +57,5 @@ services:
     environment:
       - CHOKIDAR_USEPOLLING=true
 
+networks:
+  websocket_network:

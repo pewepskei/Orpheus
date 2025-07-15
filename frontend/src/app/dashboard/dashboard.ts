@@ -9,6 +9,7 @@ import { RoomService } from '../services/room.service';
 import { RouterModule } from '@angular/router';
 import { QueueSocketService } from '../services/queue-socket.service';
 import { QueueService, QueuedSong } from '../services/queue.service';
+import { timer, switchMap, filter, take } from 'rxjs';
 
 @Component({
   selector: 'app-dashboard',
@@ -101,10 +102,30 @@ export class Dashboard implements OnInit, OnDestroy {
 
     this.queueService.markAsPlayed(this.roomCode).subscribe({
       next: () => {
-        console.log('Backend acknowledged. Waiting for WebSocket update...');
+        console.log('Backend acknowledged. Starting polling for next HLS URL...');
+        this.pollNextHlsUrl();
       },
       error: err => {
         console.error('Failed to notify backend:', err);
+      }
+    });
+  }
+
+  pollNextHlsUrl(): void {
+    timer(0, 3000) // poll every 3 seconds
+    .pipe(
+      switchMap(() => this.queueService.getQueue(this.roomCode)),
+        filter(songs => songs.length > 0 && !!songs[0].hls_url),
+        take(1) // stop once we have a valid hls_url
+    )
+    .subscribe({
+      next: (songs) => {
+        console.log('New HLS URL found:', songs[0].hls_url);
+        this.queuedSongs = songs;
+        this.hlsUrl = songs[0].hls_url;
+      },
+      error: (err) => {
+        console.error('Error while polling for HLS URL:', err);
       }
     });
   }

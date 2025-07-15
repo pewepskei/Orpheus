@@ -27,7 +27,7 @@ import { Inject } from '@angular/core';
           class="search-input"
         />
 
-        <ul *ngIf="suggestions.length" class="suggestions-list">
+        <ul *ngIf="suggestions.length && show_suggestions" class="suggestions-list">
           <li *ngFor="let s of suggestions" (click)="selectSuggestion(s)">
             {{ s }}
           </li>
@@ -170,6 +170,7 @@ export class ReserveDialog {
   searchTerm = '';
   results: YouTubeVideo[] = [];
   suggestions: string[] = [];
+  show_suggestions: boolean = true;
 
   private searchSubject = new Subject<string>();
   private youtubeService = inject(YouTubeService);
@@ -197,15 +198,18 @@ export class ReserveDialog {
 
   onInputChange(term: string) {
     this.searchSubject.next(term);
+    this.show_suggestions = true;
   }
 
   selectSuggestion(title: string) {
+    this.show_suggestions = false;
     this.searchTerm = title;
     this.suggestions = [];
     this.search();
   }
 
   search() {
+    this.show_suggestions = false;
     this.youtubeService.search(this.searchTerm).subscribe({
       next: (videos) => (this.results = videos),
       error: (err) => console.error('Search error:', err),
