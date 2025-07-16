@@ -153,9 +153,9 @@ CHANNEL_LAYERS = {
 
 ASGI_APPLICATION = "backend.asgi.application"
 
-CELERY_BROKER_URL = f"redis://{os.getenv('REDIS_HOST', '127.0.0.1')}:6379/0"
+# CELERY_BROKER_URL = f"redis://{os.getenv('REDIS_HOST', '127.0.0.1')}:6379/0"
+CELERY_BROKER_URL="redis://orpheus-redis:6379/0"
 
 
 ########## URLS ###########
 CDN_URL = os.getenv('CDN_URL', 'http://localhost:5000')
-print(f"Phil the CDN_URL is {CDN_URL} and {CELERY_BROKER_URL}")
