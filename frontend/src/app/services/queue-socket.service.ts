@@ -24,7 +24,7 @@ export class QueueSocketService {
           }
         },
         error: (err) => console.error('WebSocket error', err),
-        complete: () => console.log('WebSocket connection closed'),
+        // complete: () => console.log('WebSocket connection closed'),
       });
     });
   }

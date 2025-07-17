@@ -46,7 +46,6 @@ export class Dashboard implements OnInit, OnDestroy {
     if (this.roomCode) {
       this.roomService.getRoomByCode(this.roomCode).subscribe({
         next: (roomData) => {
-          console.log('Fetched room:', roomData);
           this.hlsUrl = roomData.hls_stream_url; // fallback / placeholder
           this.loadQueue(); // Initial fetch
         },
@@ -64,7 +63,6 @@ export class Dashboard implements OnInit, OnDestroy {
 
           // Only update HLS if the top of the queue has changed
           if (newFirst && newFirst !== currentFirst) {
-            console.log('New top of queue detected. Updating player:', newFirst);
             this.hlsUrl = newFirst;
           }
         },
@@ -76,7 +74,6 @@ export class Dashboard implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    console.log('Destroy detected');
     this.queueSocket.disconnect();
   }
 
@@ -98,11 +95,8 @@ export class Dashboard implements OnInit, OnDestroy {
   }
 
   onVideoEnded(): void {
-    console.log('Video ended, notifying backend');
-
     this.queueService.markAsPlayed(this.roomCode).subscribe({
       next: () => {
-        console.log('Backend acknowledged. Starting polling for next HLS URL...');
         this.pollNextHlsUrl();
       },
       error: err => {
@@ -120,7 +114,6 @@ export class Dashboard implements OnInit, OnDestroy {
     )
     .subscribe({
       next: (songs) => {
-        console.log('New HLS URL found:', songs[0].hls_url);
         this.queuedSongs = songs;
         this.hlsUrl = songs[0].hls_url;
       },

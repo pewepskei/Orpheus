@@ -20,7 +20,6 @@ export class Home {
   onCreateRoom() {
     this.roomService.createRoom(this.guestId).subscribe({
       next: (room: any) => {
-        console.log('Room created:', room);
         const code = room.code;
         if (code) {
           this.router.navigate(['/room', code]);

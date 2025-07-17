@@ -37,33 +37,44 @@ export class HlsPlayerComponent implements OnInit, OnDestroy, OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['src'] && !changes['src'].firstChange) {
-      console.log('[HLS] src changed:', changes['src'].previousValue, '=>', changes['src'].currentValue);
       this.waitForPlaylistAndSetup(this.src);
     }
   }
 
-  private waitForPlaylistAndSetup(src: string, retries: number = 5, delayMs: number = 1000) {
-    const attempt = () => {
-      fetch(src, { method: 'HEAD' })
-        .then(res => {
-          if (res.ok) {
-            console.log('[HLS] Playlist available, starting setup.');
-            this.setupPlayer(src);
-          } else {
-            throw new Error('Playlist not ready (non-200 response)');
-          }
-        })
-        .catch(err => {
-          if (retries > 0) {
-            console.warn(`[HLS] Playlist not ready. Retrying... (${retries})`);
-            setTimeout(() => this.waitForPlaylistAndSetup(src, retries - 1, delayMs), delayMs);
-          } else {
-            console.error('[HLS] Playlist failed to load after retries:', err);
-          }
-        });
+  private async waitForPlaylistAndSetup(src: string, retries: number = 60, delayMs: number = 3000): Promise<void> {
+    const pollUntilAvailable = (src: string, remaining: number): Promise<string> => {
+      return new Promise((resolve, reject) => {
+        const attempt = () => {
+          fetch(src, { method: 'HEAD' })
+            .then(res => {
+              if (res.ok) {
+                resolve(src);
+              } else {
+                throw new Error('Playlist not ready (non-200 response)');
+              }
+            })
+            .catch(err => {
+              if (remaining > 0) {
+                setTimeout(() => {
+                  pollUntilAvailable(src, remaining - 1).then(resolve).catch(reject);
+                }, delayMs);
+              } else {
+                reject(new Error('Playlist failed to load after retries'));
+              }
+            });
+        };
+  
+        attempt();
+      });
     };
-
-    attempt();
+  
+    try {
+      const readySrc = await pollUntilAvailable(src, retries);
+      console.log('[HLS] Playlist available, starting setup.');
+      this.setupPlayer(readySrc);
+    } catch (err) {
+      console.error('[HLS] Playlist failed to load:', err);
+    }
   }
 
   private setupPlayer(src: string) {
@@ -85,7 +96,13 @@ export class HlsPlayerComponent implements OnInit, OnDestroy, OnChanges {
     video.addEventListener('ended', this.onEnded);
 
     if (Hls.isSupported()) {
-      this.hls = new Hls();
+      this.hls = new Hls({
+        maxBufferLength: 60,
+        maxMaxBufferLength: 120,
+        maxBufferHole: 1,
+        liveSyncDuration: 5,
+        liveMaxLatencyDuration: 30,
+      });
       this.hls.attachMedia(video);
 
       this.hls.on(Hls.Events.MEDIA_ATTACHED, () => {
@@ -134,7 +151,6 @@ export class HlsPlayerComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   private onEnded = () => {
-    console.log('[HLS] Video ended');
     this.ended.emit();
   };
 
