@@ -8,7 +8,7 @@ import subprocess
 async def download_youtube_video(youtube_url, import_uuid, video_id):
     print(f"Starting YouTube download for: {youtube_url} (UUID: {import_uuid})")
     
-    download_dir = os.path.join(f"/home/pdumoran/projects/Orpheus/assets/{video_id}/")
+    download_dir = os.path.join(f"/app/assets/{video_id}/")
 
     hls_output_path = os.path.join(download_dir, 'index.m3u8')
     if os.path.exists(hls_output_path):
