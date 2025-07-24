@@ -8,6 +8,12 @@ import { QueueService, QueuedSong } from '../services/queue.service';
 import { YouTubeVideo } from '../services/youtube.service';
 import { ActivatedRoute } from '@angular/router';
 import { QueueSocketService } from '../services/queue-socket.service';
+import {
+  trigger,
+  transition,
+  style,
+  animate,
+} from '@angular/animations';
 
 
 @Component({
@@ -16,9 +22,21 @@ import { QueueSocketService } from '../services/queue-socket.service';
   templateUrl: './remote.html',
   styleUrls: ['./remote.scss'],
   imports: [CommonModule, FormsModule],
+  animations: [
+    trigger('fadeScale', [
+      transition(':enter', [
+        style({ opacity: 0, transform: 'scale(0.9)' }),
+        animate('200ms ease-out', style({ opacity: 1, transform: 'scale(1)' })),
+      ]),
+      transition(':leave', [
+        animate('150ms ease-in', style({ opacity: 0, transform: 'scale(0.95)' })),
+      ]),
+    ]),
+  ],
 })
 export class Remote {
   queuedSongs: QueuedSong[] = [];
+  selectedSongIndex: number | null = null;
   deviceName: string = this.getPrettyDeviceName();
   roomCode: string = '';
   constructor(
@@ -110,5 +128,27 @@ export class Remote {
     this.queueService.addToQueue(song).subscribe(() => {
       this.loadQueue();
     });
+  }
+
+  toggleSongActions(index: number) {
+    this.selectedSongIndex = this.selectedSongIndex === index ? null : index;
+  }
+
+  skipSong(song: QueuedSong) {
+    console.log('Skip song:', song.title);
+    // TODO: call backend to skip song
+    this.selectedSongIndex = null;
+  }
+
+  prioritizeSong(song: QueuedSong) {
+    console.log('Prioritize song:', song.title);
+    // TODO: call backend to move song up
+    this.selectedSongIndex = null;
+  }
+
+  deleteSong(song: QueuedSong) {
+    console.log('Delete song:', song.title);
+    // TODO: call backend to delete song
+    this.selectedSongIndex = null;
   }
 }

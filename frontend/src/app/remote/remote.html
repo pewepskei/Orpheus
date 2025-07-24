@@ -18,11 +18,26 @@
     </div>
 
     <ul class="queue-list" *ngIf="queuedSongs.length > 0">
-      <li *ngFor="let song of queuedSongs" class="queued-item">
+      <li
+        *ngFor="let song of queuedSongs; let i = index"
+        class="queued-item"
+        (click)="toggleSongActions(i)"
+      >
         <img [src]="song.thumbnail_url" alt="thumb" class="thumb" />
         <div class="info">
           <div class="title">{{ song.title }}</div>
           <div class="singer">🎤 {{ song.singer }}</div>
+        </div>
+
+        <div
+          class="overlay-actions"
+          *ngIf="selectedSongIndex === i"
+          @fadeScale
+          (click)="$event.stopPropagation()"
+        >
+          <button *ngIf="i === 0" class="redify" (click)="skipSong(song)">⏭ Skip</button>
+          <button *ngIf="i !== 0" class="greenify" (click)="prioritizeSong(song)">⬆ Prioritize</button>
+          <button *ngIf="i !== 0" class="redify" (click)="deleteSong(song)">🗑 Delete</button>
         </div>
       </li>
     </ul>

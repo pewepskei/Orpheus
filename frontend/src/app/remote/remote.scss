@@ -92,6 +92,7 @@
   padding: 0.75rem;
   border-radius: 10px;
   color: #f4e7d2;
+  position: relative;
 }
 
 .thumb {
@@ -114,3 +115,42 @@
   font-size: 0.9rem;
   opacity: 0.8;
 }
+
+.overlay-actions {
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 85%;
+  background: rgba(26, 26, 26, 0.5);
+  border-top-right-radius: 10px;
+  border-bottom-left-radius: 10px;
+  padding: 0.5rem;
+  display: flex;
+  flex-direction: row;
+  gap: 0.25rem;
+
+  button {
+    border: none;
+    color: #1a1a1a;
+    font-weight: bold;
+    padding: 0.3rem 0.6rem;
+    border-radius: 6px;
+    cursor: pointer;
+
+
+    &:hover {
+      background-color: #e6dac5;
+    }
+  }
+
+  .greenify {
+    background: rgba(144, 238, 144, 0.8);
+    color: #1a3d1a;
+  }
+
+  .redify {
+    background: rgba(255, 99, 71, 0.8);
+    color: #5a1a1a;
+  }
+}
+
