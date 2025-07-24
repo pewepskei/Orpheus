@@ -21,10 +21,10 @@ import Hls from 'hls.js';
     <video #videoRef controls autoplay playsinline style="width: 100%; height: 100%; object-fit: cover;"></video>
   `,
 })
-    // <video #videoRef controls autoplay muted playsinline style="width: 100%; height: 100%; object-fit: cover;"></video>
 export class HlsPlayerComponent implements OnInit, OnDestroy, OnChanges {
   @Input() src: string = '';
   @Output() ended = new EventEmitter<void>();
+  @Output() timeUpdate = new EventEmitter<{ currentTime: number; duration: number }>();
   @ViewChild('videoRef', { static: true }) videoElement!: ElementRef<HTMLVideoElement>;
 
   private hls: Hls | null = null;
@@ -95,6 +95,9 @@ export class HlsPlayerComponent implements OnInit, OnDestroy, OnChanges {
     video.removeEventListener('ended', this.onEnded);
     video.addEventListener('ended', this.onEnded);
 
+    video.removeEventListener('timeupdate', this.onTimeUpdate);
+    video.addEventListener('timeupdate', this.onTimeUpdate);
+
     if (Hls.isSupported()) {
       this.hls = new Hls({
         maxBufferLength: 60,
@@ -154,9 +157,19 @@ export class HlsPlayerComponent implements OnInit, OnDestroy, OnChanges {
     this.ended.emit();
   };
 
+  private onTimeUpdate = () => {
+    const video = this.videoElement.nativeElement;
+    this.timeUpdate.emit({
+      currentTime: video.currentTime,
+      duration: video.duration
+    });
+  };
+
   ngOnDestroy() {
+    const video = this.videoElement.nativeElement;
     this.hls?.destroy();
     this.videoElement.nativeElement.removeEventListener('ended', this.onEnded);
+    video.removeEventListener('timeupdate', this.onTimeUpdate);
   }
 }
 

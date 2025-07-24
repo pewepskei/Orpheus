@@ -22,16 +22,22 @@
       <div *ngIf="!started" (click)="startKaraoke()" class="start-overlay">
       Tap to Start Karaoke 🎤
       </div>
-      <!-- <app-hls-player *ngIf="hlsUrl" [src]="hlsUrl" (ended)="onVideoEnded()"></app-hls-player> -->
-      <app-hls-player *ngIf="started && hlsUrl" [src]="hlsUrl" (ended)="onVideoEnded()"></app-hls-player>
+      <div class="next-song-overlay" *ngIf="showNextSongOverlay">
+        🎶 Up Next: {{ nextSongTitle }}
+      </div>
+      <app-hls-player *ngIf="started && hlsUrl" [src]="hlsUrl" (ended)="onVideoEnded()" (timeUpdate)="handleTimeUpdate($event)"></app-hls-player>
     </div>
     <div class="queue-box">
       <h3>🎤 On Queue</h3>
       <div *ngFor="let song of queuedSongs" class="queued-song">
         <img [src]="song.thumbnail_url" width="150" height="100" alt="thumb" />
-        <div>
-          <strong>{{ song.title }}</strong><br />
-          <small>By {{ song.singer }}</small>
+      <div class="song-info">
+        <strong>{{ song.title }}</strong><br />
+        <small>By {{ song.singer }}</small>
+        <div *ngIf="song.status === 'composing'" class="status-indicator">
+          <img src="harp.gif" width="24" height="24" alt="Composing" />
+          <span>Composing...</span>
+        </div>
         </div>
       </div>
     </div>

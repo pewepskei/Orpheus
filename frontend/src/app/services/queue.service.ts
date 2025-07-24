@@ -14,6 +14,7 @@ export interface QueuedSong {
   singer: string;
   room_code?: string;
   guest_id?: string;
+  status?: string;
 }
 
 @Injectable({ providedIn: 'root' })

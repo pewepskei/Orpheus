@@ -25,6 +25,11 @@ export class Dashboard implements OnInit, OnDestroy {
   private queueService = inject(QueueService);
   private roomService = inject(RoomService);
   private queueSocket = inject(QueueSocketService);
+  nextSongTitle = '';
+  showNextSongOverlay = false;
+
+  private hasShownMidway = false;
+  private hasShownEnding = false;
 
   queuedSongs: QueuedSong[] = [];
   roomCode = '';
@@ -95,15 +100,16 @@ export class Dashboard implements OnInit, OnDestroy {
   }
 
   onVideoEnded(): void {
+    this.hasShownMidway = false;
+    this.hasShownEnding = false;
+    this.showNextSongOverlay = false;
+
     this.queueService.markAsPlayed(this.roomCode).subscribe({
-      next: () => {
-        this.pollNextHlsUrl();
-      },
-      error: err => {
-        console.error('Failed to notify backend:', err);
-      }
+      next: () => this.pollNextHlsUrl(),
+      error: err => console.error('Failed to notify backend:', err)
     });
   }
+
 
   pollNextHlsUrl(): void {
     timer(0, 3000) // poll every 3 seconds
@@ -121,6 +127,36 @@ export class Dashboard implements OnInit, OnDestroy {
         console.error('Error while polling for HLS URL:', err);
       }
     });
+  }
+
+  handleTimeUpdate(event: { currentTime: number; duration: number }) {
+    const { currentTime, duration } = event;
+
+    if (!duration || this.queuedSongs.length < 2) return;
+
+    const halfway = duration / 2;
+    const endThreshold = duration - 30;
+
+    // Show at halfway
+    if (!this.hasShownMidway && currentTime >= halfway) {
+      this.showNextSong();
+      this.hasShownMidway = true;
+    }
+
+    // Show again in last 30 seconds
+    if (!this.hasShownEnding && currentTime >= endThreshold) {
+      this.showNextSong();
+      this.hasShownEnding = true;
+    }
+  }
+
+  showNextSong() {
+    this.nextSongTitle = this.queuedSongs[1].title;
+    this.showNextSongOverlay = true;
+
+    setTimeout(() => {
+      this.showNextSongOverlay = false;
+    }, 15000); // Hide after 15 seconds
   }
 }
 
