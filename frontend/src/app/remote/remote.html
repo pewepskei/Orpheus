@@ -7,15 +7,11 @@
     </div>
   </div>
 
-  <button class="reserve-btn" (click)="openReserveDialog()">
-    + Reserve Song
-  </button>
+  <button class="reserve-btn" (click)="openReserveDialog()">+ Reserve Song</button>
 
   <div class="queue-section">
     <h2>🎤 On Queue</h2>
-    <div *ngIf="queuedSongs.length === 0" class="empty">
-      No songs queued yet.
-    </div>
+    <div *ngIf="queuedSongs.length === 0" class="empty">No songs queued yet.</div>
 
     <ul class="queue-list" *ngIf="queuedSongs.length > 0">
       <li
@@ -24,9 +20,15 @@
         (click)="toggleSongActions(i)"
       >
         <img [src]="song.thumbnail_url" alt="thumb" class="thumb" />
+
         <div class="info">
           <div class="title">{{ song.title }}</div>
           <div class="singer">🎤 {{ song.singer }}</div>
+        </div>
+
+        <!-- Spinner in lower left if composing -->
+        <div class="status-icon" *ngIf="song.status === 'composing'">
+          <div class="spinner"></div>
         </div>
 
         <div
