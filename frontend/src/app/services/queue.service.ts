@@ -34,5 +34,13 @@ export class QueueService {
   markAsPlayed(roomCode: string) {
     return this.http.post(`${this.apiUrl}mark-played/`, { room_code: roomCode });
   }
+
+  deleteSong(roomCode: string, songId: string) {
+    return this.http.post(`${this.apiUrl}delete-song/`, { room_code: roomCode, song_id: songId });
+  }
+
+  prioritizeSong(roomCode: string, songId: number) {
+    return this.http.post(`${this.apiUrl}prioritize/`, { room_code: roomCode, song_id: songId });
+  }
 }
 

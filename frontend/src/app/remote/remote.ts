@@ -135,20 +135,41 @@ export class Remote {
   }
 
   skipSong(song: QueuedSong) {
-    console.log('Skip song:', song.title);
-    // TODO: call backend to skip song
+    this.queueService.markAsPlayed(this.roomCode).subscribe({
+      next: () => {
+        this.selectedSongIndex = null;
+      },
+      error: (err) => {
+        console.error('Failed to skip song', err);
+      }
+    });
     this.selectedSongIndex = null;
   }
 
   prioritizeSong(song: QueuedSong) {
-    console.log('Prioritize song:', song.title);
-    // TODO: call backend to move song up
-    this.selectedSongIndex = null;
+    this.queueService.prioritizeSong(this.roomCode, song.id!).subscribe({
+      next: () => {
+        this.selectedSongIndex = null;
+      },
+      error: (err) => {
+        console.error('Failed to prioritize song', err);
+      }
+    });
   }
 
   deleteSong(song: QueuedSong) {
-    console.log('Delete song:', song.title);
-    // TODO: call backend to delete song
-    this.selectedSongIndex = null;
+    if (!song.id) {
+      console.error('Cannot delete song: Missing song ID');
+      return;
+    }
+
+    this.queueService.deleteSong(this.roomCode, String(song.id)).subscribe({
+      next: () => {
+        this.selectedSongIndex = null;
+      },
+      error: (err) => {
+        console.error('Failed to delete song', err);
+      }
+    });
   }
 }
