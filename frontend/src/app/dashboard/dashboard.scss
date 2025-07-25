@@ -73,11 +73,12 @@ $ancient-gold: #c19e3f;
 
     .video {
       position: relative;
-      flex: 6;
+      flex: 10;
       border: 3px solid #d6c79a;
       border-radius: 16px;
       overflow: hidden;
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+      max-height: calc(85vh + 2rem);
       .start-overlay {
         position: absolute;
         top: 0;
@@ -113,6 +114,7 @@ $ancient-gold: #c19e3f;
       background: #fffef9;
       border: 2px solid #c6b88a;
       border-radius: 12px;
+      max-height: 85vh;
       padding: 1rem;
       display: flex;
       flex-direction: column;
