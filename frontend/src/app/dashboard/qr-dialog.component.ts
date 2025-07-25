@@ -26,6 +26,7 @@ import { CommonModule } from '@angular/common';
       box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
       max-width: 90vw;
       margin: auto;
+      z-index: 9;
     }
 
     h2 {
