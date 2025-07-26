@@ -30,15 +30,15 @@
     <div class="queue-box">
       <h3>🎤 On Queue</h3>
       <div *ngFor="let song of queuedSongs" class="queued-song">
-        <img [src]="song.thumbnail_url" width="150" height="100" alt="thumb" />
-      <div class="song-info">
-        <strong>{{ song.title }}</strong><br />
-        <small>By {{ song.singer }}</small>
-        <div *ngIf="song.status === 'composing'" class="status-indicator">
-          <img src="harp.gif" width="24" height="24" alt="Composing" />
-          <span>Composing...</span>
+        <div class="song-info">
+          <strong>{{ song.title }}</strong><br />
+          <small>By {{ song.singer }}</small>
+          <div *ngIf="song.status === 'composing'" class="status-indicator">
+            <img src="harp.gif" width="24" height="24" alt="Composing" />
+            <span>Composing...</span>
+          </div>
         </div>
-        </div>
+        <!--<img [src]="song.thumbnail_url" width="128" height="72" alt="thumb" />-->
       </div>
     </div>
   </div>
