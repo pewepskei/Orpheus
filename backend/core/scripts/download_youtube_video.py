@@ -45,7 +45,7 @@ async def download_youtube_video(youtube_url, import_uuid, video_id):
                 await page.wait_for_selector(".dropdown-group", timeout=10000)
 
                 print("Selecting MP4 1080p")
-                await page.click(".dropdown-group .quality-video .video-list li[data-value='1080']", timeout=10000)
+                await page.click(".dropdown-group .quality-video .video-list li[data-value='720']", timeout=10000)
 
                 print("Clicking download button")
                 await page.click(".btn-download")
