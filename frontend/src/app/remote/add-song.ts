@@ -1,12 +1,11 @@
-import { Component, inject } from '@angular/core';
-import { MatDialogRef, MatDialogModule } from '@angular/material/dialog';
+import { Component, inject, Inject } from '@angular/core';
+import { MatDialogRef, MatDialogModule, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { YouTubeService, YouTubeVideo } from '../services/youtube.service';
 import { MatIconModule } from '@angular/material/icon';
-import { debounceTime, Subject } from 'rxjs';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { Inject } from '@angular/core';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged, filter, switchMap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-reserve-dialog',
@@ -33,7 +32,6 @@ import { Inject } from '@angular/core';
           </li>
         </ul>
         <button (click)="search()" class="search-btn"><mat-icon>search</mat-icon></button>
-
       </div>
 
       <div class="results">
@@ -82,6 +80,7 @@ import { Inject } from '@angular/core';
       display: flex;
       gap: 0.5rem;
       margin-bottom: 1rem;
+      position: relative;
     }
 
     .search-input {
@@ -113,8 +112,6 @@ import { Inject } from '@angular/core';
     }
 
     .result {
-      flex: 1;                          // Take available vertical space
-      overflow-y: auto;                // Make just this area scrollable
       display: flex;
       flex-direction: row;
       gap: 1rem;
@@ -140,9 +137,10 @@ import { Inject } from '@angular/core';
       font-size: 0.9rem;
       opacity: 0.8;
     }
+
     .suggestions-list {
       position: absolute;
-      top: 18%;
+      top: 100%;
       left: 0;
       right: 0;
       background: #2a2a2a;
@@ -153,16 +151,16 @@ import { Inject } from '@angular/core';
       list-style: none;
       margin: 0.25rem 0 0;
       padding: 0;
+    }
 
-      li {
-        padding: 0.5rem;
-        border-bottom: 1px solid #444;
-        cursor: pointer;
+    .suggestions-list li {
+      padding: 0.5rem;
+      border-bottom: 1px solid #444;
+      cursor: pointer;
+    }
 
-        &:hover {
-          background: #3a3a3a;
-        }
-      }
+    .suggestions-list li:hover {
+      background: #3a3a3a;
     }
   `]
 })
@@ -170,29 +168,27 @@ export class ReserveDialog {
   searchTerm = '';
   results: YouTubeVideo[] = [];
   suggestions: string[] = [];
-  show_suggestions: boolean = true;
+  show_suggestions = true;
 
   private searchSubject = new Subject<string>();
   private youtubeService = inject(YouTubeService);
   public dialogRef = inject(MatDialogRef<ReserveDialog>);
 
   constructor(
-    @Inject(MAT_DIALOG_DATA) public data:{ onAddSong: (video: YouTubeVideo) => void }
+    @Inject(MAT_DIALOG_DATA) public data: { onAddSong: (video: YouTubeVideo) => void }
   ) {
-    this.searchSubject.pipe(debounceTime(200)).subscribe((term) => {
-      if (!term.trim()) {
-        this.suggestions = [];
-        return;
-      }
-
-      term = term + " karaoke";
-
-      this.youtubeService.search(term).subscribe({
-        next: (videos) => {
-          this.suggestions = videos.slice(0, 5).map(v => v.title); // Top 5 only
-        },
-        error: (err) => console.error(err),
-      });
+    this.searchSubject.pipe(
+      debounceTime(200),
+      distinctUntilChanged(),
+      filter(term => term.trim().length > 0),
+      switchMap(term => {
+        return this.youtubeService.search(term + ' karaoke');
+      })
+    ).subscribe({
+      next: (videos) => {
+        this.suggestions = videos.slice(0, 5).map(v => v.title);
+      },
+      error: (err) => console.error(err),
     });
   }
 
@@ -217,8 +213,8 @@ export class ReserveDialog {
   }
 
   addToQueue(video: YouTubeVideo) {
-    console.log("Passing video to queue", video);
     this.data?.onAddSong?.(video);
     this.dialogRef.close();
   }
 }
+

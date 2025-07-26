@@ -15,7 +15,6 @@ import {
   animate,
 } from '@angular/animations';
 
-
 @Component({
   selector: 'app-remote',
   standalone: true,
@@ -37,8 +36,9 @@ import {
 export class Remote {
   queuedSongs: QueuedSong[] = [];
   selectedSongIndex: number | null = null;
-  deviceName: string = this.getPrettyDeviceName();
+  deviceName: string = '';
   roomCode: string = '';
+
   constructor(
     private dialog: MatDialog,
     private queueService: QueueService,
@@ -47,6 +47,9 @@ export class Remote {
   ) {}
 
   ngOnInit() {
+    const savedName = localStorage.getItem('device_name');
+    this.deviceName = savedName ? savedName : this.getPrettyDeviceName();
+
     this.route.paramMap.subscribe(params => {
       this.roomCode = params.get('code') || '';
       if (!this.roomCode) {
@@ -54,7 +57,7 @@ export class Remote {
         return;
       }
 
-      this.loadQueue(); // Initial fetch
+      this.loadQueue();
 
       this.socketService.connect(this.roomCode).subscribe((songs) => {
         this.queuedSongs = songs;
@@ -107,6 +110,7 @@ export class Remote {
     }).afterClosed().subscribe((newName: string | undefined) => {
       if (newName?.trim()) {
         this.deviceName = newName.trim();
+        localStorage.setItem('device_name', this.deviceName);
       }
     });
   }
